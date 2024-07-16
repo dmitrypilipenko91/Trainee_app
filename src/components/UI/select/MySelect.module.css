@@ -1,0 +1,13 @@
+.selectGroup {
+    margin: 0 0 10px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 24px;
+    font-weight: bold
+}
+.select {
+    width: 250px;
+    font-size: 18px;
+    font-weight: normal
+}
