@@ -7,11 +7,11 @@ interface InputProps {
     labelText: string;
 }
 
-const Input: React.FC<InputProps> = ({type, min, max, labelText}) => {
+const Input: React.FC<InputProps> = ({type, labelText, ...props}) => {
     return (
         <div className={classes.inputGroup}>
             <label>{labelText}</label>
-            <input type={type} min={min} max={max} className={classes.input}></input>
+            <input type={type} className={classes.input} {...props} />
         </div>
     )
 };
