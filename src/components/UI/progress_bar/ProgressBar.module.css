@@ -1,0 +1,9 @@
+.progressBarGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 0 10px 10px;
+  width: 20vw;
+  font-size: 18px;
+  font-weight: normal;
+}
