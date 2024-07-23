@@ -1,5 +1,5 @@
 import classes from './Timer.module.css';
-import { useEffect, useState } from 'react';
+import { useDeferredValue, useEffect, useState } from 'react';
 
 function formatTime(seconds: number) {
   const mins = Math.floor((seconds % 3600) / 60);
@@ -11,14 +11,14 @@ let timerInterval: number;
 
 const Timer: React.FC = () => {
   const [timerTime, setTimerTime] = useState(60);
-  const [timerOutput, setTimerOutput] = useState(formatTime(timerTime));
+  const deferredTimerTime = useDeferredValue(timerTime);
+  const timerOutput: string = formatTime(deferredTimerTime);
 
   const startTimer = () => {
     clearInterval(timerInterval);
     timerInterval = setInterval(() => {
       setTimerTime((prevTime) => {
         if (prevTime > 0) {
-          setTimerOutput(formatTime(prevTime - 1));
           return prevTime - 1;
         } else {
           clearInterval(timerInterval);
