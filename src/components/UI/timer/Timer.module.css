@@ -1,0 +1,9 @@
+.timer {
+  margin: 0 0 10px 10px;
+  width: 150px;
+  height: 30px;
+  border: solid 1px black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
