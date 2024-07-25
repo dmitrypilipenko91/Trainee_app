@@ -10,53 +10,50 @@ const handleButtonClick = () => {
 };
 
 const quizQuestions = [
-  {
-    id: 1,
-    questionText: 'The Earth is flat.',
-    options: [
-      { text: 'True', isCorrect: false },
-      { text: 'False', isCorrect: true },
-    ],
-  },
-  {
-    id: 2,
-    questionText: 'Which planet is known as the Red Planet?',
-    options: [
-      { text: 'Earth', isCorrect: false },
-      { text: 'Mars', isCorrect: true },
-      { text: 'Jupiter', isCorrect: false },
-      { text: 'Saturn', isCorrect: false },
-    ],
-  },
-  {
-    id: 3,
-    questionText: 'Humans share 50% of their DNA with bananas.',
-    options: [
-      { text: 'True', isCorrect: true },
-      { text: 'False', isCorrect: false },
-    ],
-  },
-  {
-    id: 4,
-    questionText: 'What is the capital of France?',
-    options: [
-      { text: 'Berlin', isCorrect: false },
-      { text: 'Madrid', isCorrect: false },
-      { text: 'Paris', isCorrect: true },
-      { text: 'Lisbon', isCorrect: false },
-    ],
-  },
-  {
-    id: 5,
-    questionText: 'The chemical symbol for gold is Au.',
-    options: [
-      { text: 'True', isCorrect: true },
-      { text: 'False', isCorrect: false },
-    ],
-  },
+  { id: 1, content: 'The Earth is flat.' },
+  { id: 2, content: 'Which planet is known as the Red Planet?' },
+  { id: 3, content: 'Humans share 50% of their DNA with bananas.' },
+  { id: 4, content: 'What is the capital of France?' },
+  { id: 5, content: 'The chemical symbol for gold is Au.' },
 ];
 
-const MainQuizScreen = () => {
+const answers = [
+  { id: 1, questionId: 1, option: 'True' },
+  { id: 2, questionId: 1, option: 'False' },
+  { id: 3, questionId: 2, option: 'Earth' },
+  { id: 4, questionId: 2, option: 'Mars' },
+  { id: 5, questionId: 3, option: 'True' },
+  { id: 6, questionId: 3, option: 'False' },
+  { id: 7, questionId: 4, option: 'Berlin' },
+  { id: 8, questionId: 4, option: 'Madrid' },
+  { id: 9, questionId: 4, option: 'Paris' },
+  { id: 10, questionId: 4, option: 'Lisbon' },
+  { id: 11, questionId: 5, option: 'True' },
+  { id: 12, questionId: 5, option: 'False' },
+];
+
+const correctAnswers = [
+  { answerId: 2, questionId: 1 },
+  { answerId: 4, questionId: 2 },
+  { answerId: 5, questionId: 3 },
+  { answerId: 9, questionId: 4 },
+  { answerId: 11, questionId: 5 },
+];
+
+const getAnswersByQuestionId = (questionId: number) => {
+  answers.filter((answer) => answer.questionId === questionId);
+};
+
+const isCorrectAnswer = (questionId: number, chosenAnswerId: number) => {
+  return Boolean(
+    correctAnswers.find(
+      (answer) =>
+        answer.questionId === questionId && answer.answerId === chosenAnswerId,
+    ),
+  );
+};
+
+const MainQuizScreen: React.FC = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
   const nextQuestion = () => {
@@ -67,7 +64,7 @@ const MainQuizScreen = () => {
     <>
       {currentQuestionIndex < quizQuestions.length ? (
         <QuestionBlock
-          questionText={quizQuestions[currentQuestionIndex].questionText}
+          questionText={quizQuestions[currentQuestionIndex].content}
         />
       ) : (
         <div className="quizCompletion">Quiz completed!</div>
