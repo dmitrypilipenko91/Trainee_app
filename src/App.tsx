@@ -9,14 +9,15 @@ import QuizResults from './pages/QuizResults';
 import QuizSettings from './pages/QuizSettings';
 import MainQuizScreen from './pages/MainQuizScreen';
 import Statistics from './pages/Statistics';
+import { paths } from './utils/paths';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      <Route path="/" element={<QuizSettings />} />
-      <Route path="main" element={<MainQuizScreen />} />
-      <Route path="results" element={<QuizResults />} />
-      <Route path="stats" element={<Statistics />} />
+      <Route path={paths.home} element={<QuizSettings />} />
+      <Route path={paths.main} element={<MainQuizScreen />} />
+      <Route path={paths.results} element={<QuizResults />} />
+      <Route path={paths.stats} element={<Statistics />} />
     </>,
   ),
 );

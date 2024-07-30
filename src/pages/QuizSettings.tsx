@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import MyButton from '../components/UI/button/MyButton';
 import Input from '../components/UI/input/Input';
 import MySelect from '../components/UI/select/MySelect';
+import { paths } from '../utils/paths';
 
 const timeOptions = [
   { value: '1m', label: '1m' },
@@ -13,11 +14,11 @@ const QuizSettings = () => {
   const navigate = useNavigate();
 
   const handleStartButtonClick = () => {
-    navigate('/main');
+    navigate(paths.main);
   };
 
   const handleSeeStatsButtonClick = () => {
-    navigate('/stats');
+    navigate(paths.stats);
   };
 
   return (

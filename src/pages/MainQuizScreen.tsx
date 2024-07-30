@@ -6,6 +6,7 @@ import Timer from '../components/UI/timer/Timer';
 import '../App.css';
 import Modal from '../components/UI/modal/Modal';
 import { useNavigate } from 'react-router-dom';
+import { paths } from '../utils/paths';
 
 const FEEDBACK = {
   CORRECT: "It's correct!",
@@ -97,11 +98,11 @@ const MainQuizScreen: React.FC = () => {
   const navigate = useNavigate();
 
   const handleConfirmModal = () => {
-    navigate('/');
+    navigate(paths.home);
   };
 
   const finishQuiz = () => {
-    setTimeout(() => navigate('/results'), 1000);
+    setTimeout(() => navigate(paths.results), 1500);
   };
 
   const [question, answers]: [Question | undefined, Answer[]] = useMemo(() => {

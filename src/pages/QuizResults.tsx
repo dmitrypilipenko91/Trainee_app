@@ -1,16 +1,17 @@
 import MyButton from '../components/UI/button/MyButton';
 import '../App.css';
 import { useNavigate } from 'react-router-dom';
+import { paths } from '../utils/paths';
 
 const QuizResults: React.FC = () => {
   const navigate = useNavigate();
 
   const handleRestartButton = () => {
-    navigate('/main');
+    navigate(paths.main);
   };
 
   const handleAnotherQuizButton = () => {
-    navigate('/');
+    navigate(paths.home);
   };
 
   return (
