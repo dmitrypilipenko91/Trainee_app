@@ -1,23 +1,39 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import MyButton from '../components/UI/button/MyButton';
 import ProgressBar from '../components/UI/progress_bar/ProgressBar';
 import QuestionBlock from '../components/UI/question_block/QuestionBlock';
-import MySelect from '../components/UI/select/MySelect';
 import Timer from '../components/UI/timer/Timer';
+import '../App.css';
 
-const handleButtonClick = () => {
-  console.log('Button clicked!');
-};
+interface Question {
+  id: number;
+  content: string;
+  type: string;
+}
 
-const quizQuestions = [
-  { id: 1, content: 'The Earth is flat.' },
-  { id: 2, content: 'Which planet is known as the Red Planet?' },
-  { id: 3, content: 'Humans share 50% of their DNA with bananas.' },
-  { id: 4, content: 'What is the capital of France?' },
-  { id: 5, content: 'The chemical symbol for gold is Au.' },
+interface Answer {
+  id: number;
+  questionId: number;
+  option: string;
+}
+
+const quizQuestions: Question[] = [
+  { id: 1, content: 'The Earth is flat.', type: 'true_false' },
+  {
+    id: 2,
+    content: 'Which planet is known as the Red Planet?',
+    type: 'multiple_choice',
+  },
+  {
+    id: 3,
+    content: 'Humans share 50% of their DNA with bananas.',
+    type: 'true_false',
+  },
+  { id: 4, content: 'What is the capital of France?', type: 'multiple_choice' },
+  { id: 5, content: 'The chemical symbol for gold is Au.', type: 'true_false' },
 ];
 
-const answers = [
+const answers: Answer[] = [
   { id: 1, questionId: 1, option: 'True' },
   { id: 2, questionId: 1, option: 'False' },
   { id: 3, questionId: 2, option: 'Earth' },
@@ -41,10 +57,13 @@ const correctAnswers = [
 ];
 
 const getAnswersByQuestionId = (questionId: number) => {
-  answers.filter((answer) => answer.questionId === questionId);
+  return answers.filter((answer) => answer.questionId === questionId);
 };
 
-const isCorrectAnswer = (questionId: number, chosenAnswerId: number) => {
+const isCorrectAnswer = (
+  questionId: number,
+  chosenAnswerId: number,
+): boolean => {
   return Boolean(
     correctAnswers.find(
       (answer) =>
@@ -54,31 +73,95 @@ const isCorrectAnswer = (questionId: number, chosenAnswerId: number) => {
 };
 
 const MainQuizScreen: React.FC = () => {
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [currentQuestionId, setCurrentQuestionId] = useState<number>(1);
+  const [feedback, setFeedback] = useState<string>('');
+  const [isQuizCompleted, setIsQuizCompleted] = useState<boolean>(false);
 
-  const nextQuestion = () => {
-    setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
-  }; // for the future implementation of changing questions;
+  const [question, answers]: [Question | undefined, Answer[]] = useMemo(() => {
+    const _question = quizQuestions.find((q) => q.id === currentQuestionId);
+    const _answers = getAnswersByQuestionId(currentQuestionId);
+    return [_question, _answers];
+  }, [currentQuestionId]);
+
+  useEffect(() => {
+    if (feedback) {
+      const timer = setTimeout(() => {
+        handleNextQuestion();
+        setFeedback('');
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [feedback]);
+
+  const handleAnswerClick = (chosenAnswerId: number) => {
+    if (isCorrectAnswer(currentQuestionId, chosenAnswerId)) {
+      setFeedback("It's correct!");
+    } else {
+      setFeedback("It's incorrect!");
+    }
+  };
+
+  const handleNextQuestion = () => {
+    const nextQuestion = quizQuestions.find(
+      (q) => q.id === currentQuestionId + 1,
+    );
+    if (nextQuestion) {
+      setCurrentQuestionId(nextQuestion.id);
+    } else {
+      setIsQuizCompleted(true);
+    }
+  };
 
   return (
     <>
-      {currentQuestionIndex < quizQuestions.length ? (
-        <QuestionBlock
-          questionText={quizQuestions[currentQuestionIndex].content}
-        />
+      {question && !isQuizCompleted ? (
+        <QuestionBlock questionText={question.content} />
       ) : (
         <div className="quizCompletion">Quiz completed!</div>
       )}
       <ProgressBar
-        currentQuestion={currentQuestionIndex + 1}
+        currentQuestion={currentQuestionId}
         totalQuestions={quizQuestions.length}
       />
       <div className="answerBtns">
-        <MyButton buttonText="True" onClick={handleButtonClick} />
-        <MyButton buttonText="False" onClick={handleButtonClick} />
-        <MySelect labelText="" options={[]} />
+        {question?.type === 'true_false' ? (
+          <>
+            {answers.map((answer) => {
+              if (answer.option === 'True') {
+                return (
+                  <MyButton
+                    key={answer.id}
+                    buttonText="True"
+                    onClick={() => handleAnswerClick(answer.id)}
+                  />
+                );
+              } else if (answer.option === 'False') {
+                return (
+                  <MyButton
+                    key={answer.id}
+                    buttonText="False"
+                    onClick={() => handleAnswerClick(answer.id)}
+                  />
+                );
+              }
+              return null;
+            })}
+          </>
+        ) : (
+          answers.map((answer) => (
+            <MyButton
+              key={answer.id}
+              buttonText={answer.option}
+              onClick={() => handleAnswerClick(answer.id)}
+            />
+          ))
+        )}
       </div>
-      <MyButton buttonText="End quiz" onClick={handleButtonClick} />
+      {feedback && <div className="feedback">{feedback}</div>}
+      <MyButton
+        buttonText="End quiz"
+        onClick={() => setIsQuizCompleted(true)}
+      />
       <Timer />
     </>
   );
