@@ -9,7 +9,11 @@ function formatTime(seconds: number) {
 
 let timerInterval: number;
 
-const Timer: React.FC = () => {
+interface TimerProps {
+  onFinish: () => void;
+}
+
+const Timer: React.FC<TimerProps> = ({ onFinish }) => {
   const [timerTime, setTimerTime] = useState(60);
   const deferredTimerTime = useDeferredValue(timerTime);
   const timerOutput: string = formatTime(deferredTimerTime);
@@ -22,6 +26,7 @@ const Timer: React.FC = () => {
           return prevTime - 1;
         } else {
           clearInterval(timerInterval);
+          onFinish();
           return 0;
         }
       });

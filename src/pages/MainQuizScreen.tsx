@@ -4,6 +4,14 @@ import ProgressBar from '../components/UI/progress_bar/ProgressBar';
 import QuestionBlock from '../components/UI/question_block/QuestionBlock';
 import Timer from '../components/UI/timer/Timer';
 import '../App.css';
+import Modal from '../components/UI/modal/Modal';
+import { useNavigate } from 'react-router-dom';
+
+const FEEDBACK = {
+  CORRECT: "It's correct!",
+  INCORRECT: "It's incorrect!",
+  default: '',
+};
 
 interface Question {
   id: number;
@@ -74,8 +82,27 @@ const isCorrectAnswer = (
 
 const MainQuizScreen: React.FC = () => {
   const [currentQuestionId, setCurrentQuestionId] = useState<number>(1);
-  const [feedback, setFeedback] = useState<string>('');
+  const [feedback, setFeedback] = useState<string>(FEEDBACK.default);
   const [isQuizCompleted, setIsQuizCompleted] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const navigate = useNavigate();
+
+  const handleConfirmModal = () => {
+    navigate('/');
+  };
+
+  const finishQuiz = () => {
+    setTimeout(() => navigate('/results'), 1000);
+  };
 
   const [question, answers]: [Question | undefined, Answer[]] = useMemo(() => {
     const _question = quizQuestions.find((q) => q.id === currentQuestionId);
@@ -87,18 +114,18 @@ const MainQuizScreen: React.FC = () => {
     if (feedback) {
       const timer = setTimeout(() => {
         handleNextQuestion();
-        setFeedback('');
-      }, 2000);
+        setFeedback(FEEDBACK.default);
+      }, 1000);
       return () => clearTimeout(timer);
     }
   }, [feedback]);
 
   const handleAnswerClick = (chosenAnswerId: number) => {
-    if (isCorrectAnswer(currentQuestionId, chosenAnswerId)) {
-      setFeedback("It's correct!");
-    } else {
-      setFeedback("It's incorrect!");
-    }
+    setFeedback(() =>
+      isCorrectAnswer(currentQuestionId, chosenAnswerId)
+        ? FEEDBACK.CORRECT
+        : FEEDBACK.INCORRECT,
+    );
   };
 
   const handleNextQuestion = () => {
@@ -109,6 +136,7 @@ const MainQuizScreen: React.FC = () => {
       setCurrentQuestionId(nextQuestion.id);
     } else {
       setIsQuizCompleted(true);
+      finishQuiz();
     }
   };
 
@@ -160,9 +188,18 @@ const MainQuizScreen: React.FC = () => {
       {feedback && <div className="feedback">{feedback}</div>}
       <MyButton
         buttonText="End quiz"
-        onClick={() => setIsQuizCompleted(true)}
+        onClick={() => {
+          setIsQuizCompleted(true);
+          handleOpenModal();
+        }}
       />
-      <Timer />
+      <Timer onFinish={finishQuiz} />
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onConfirm={handleConfirmModal}
+        modalText="Do you really want to end quiz?"
+      />
     </>
   );
 };
