@@ -87,12 +87,8 @@ const MainQuizScreen: React.FC = () => {
   const [isQuizCompleted, setIsQuizCompleted] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
+  const handleToggleOpenModal = () => {
+    setIsModalOpen((value) => !value);
   };
 
   const navigate = useNavigate();
@@ -191,13 +187,13 @@ const MainQuizScreen: React.FC = () => {
         buttonText="End quiz"
         onClick={() => {
           setIsQuizCompleted(true);
-          handleOpenModal();
+          handleToggleOpenModal();
         }}
       />
       <Timer onFinish={finishQuiz} />
       <Modal
         isOpen={isModalOpen}
-        onClose={handleCloseModal}
+        onClose={handleToggleOpenModal}
         onConfirm={handleConfirmModal}
         modalText="Do you really want to end quiz?"
       />
