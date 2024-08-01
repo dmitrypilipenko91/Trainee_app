@@ -1,6 +1,8 @@
+import { useNavigate } from 'react-router-dom';
 import MyButton from '../components/UI/button/MyButton';
 import Input from '../components/UI/input/Input';
 import MySelect from '../components/UI/select/MySelect';
+import { paths } from '../utils/paths';
 
 const timeOptions = [
   { value: '1m', label: '1m' },
@@ -8,11 +10,17 @@ const timeOptions = [
   { value: '5m', label: '5m' },
 ];
 
-const handleButtonClick = () => {
-  console.log('Button clicked!');
-};
-
 const QuizSettings = () => {
+  const navigate = useNavigate();
+
+  const handleStartButtonClick = () => {
+    navigate(paths.main);
+  };
+
+  const handleSeeStatsButtonClick = () => {
+    navigate(paths.stats);
+  };
+
   return (
     <>
       <Input
@@ -25,8 +33,8 @@ const QuizSettings = () => {
       <MySelect labelText="Difficulty" options={[]} />
       <MySelect labelText="Type" options={[]} />
       <MySelect options={timeOptions} labelText="Time" />
-      <MyButton buttonText="Start quiz" onClick={handleButtonClick} />
-      <MyButton buttonText="See my stats" onClick={handleButtonClick} />
+      <MyButton buttonText="Start quiz" onClick={handleStartButtonClick} />
+      <MyButton buttonText="See my stats" onClick={handleSeeStatsButtonClick} />
     </>
   );
 };
