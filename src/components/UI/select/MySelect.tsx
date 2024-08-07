@@ -9,13 +9,25 @@ interface Option {
 interface MySelectProps {
   labelText: string;
   options: Option[];
+  onChange: (selectedOption: Option | null) => void;
+  value: Option | null;
 }
 
-const MySelect: React.FC<MySelectProps> = ({ labelText, options }) => {
+const MySelect: React.FC<MySelectProps> = ({
+  labelText,
+  options,
+  onChange,
+  value,
+}) => {
   return (
     <div className={classes.selectGroup}>
       <label>{labelText}</label>
-      <Select options={options} className={classes.select} />
+      <Select
+        options={options}
+        className={classes.select}
+        onChange={onChange}
+        value={value}
+      />
     </div>
   );
 };

@@ -10,6 +10,8 @@ import QuizSettings from './pages/QuizSettings';
 import MainQuizScreen from './pages/MainQuizScreen';
 import Statistics from './pages/Statistics';
 import { paths } from './utils/paths';
+import { Provider } from 'react-redux';
+import store from './app/store';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -25,7 +27,9 @@ const router = createBrowserRouter(
 function App() {
   return (
     <>
-      <RouterProvider router={router} />
+      <Provider store={store}>
+        <RouterProvider router={router} />
+      </Provider>
     </>
   );
 }
