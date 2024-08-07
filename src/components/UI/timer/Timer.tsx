@@ -1,3 +1,4 @@
+import { useAppSelector } from '../../../app/hooks';
 import classes from './Timer.module.css';
 import { useDeferredValue, useEffect, useState } from 'react';
 
@@ -7,6 +8,12 @@ function formatTime(seconds: number) {
   return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 }
 
+const timeMap: { [key: string]: number } = {
+  '1m': 60,
+  '2m': 120,
+  '5m': 300,
+};
+
 let timerInterval: number;
 
 interface TimerProps {
@@ -14,7 +21,16 @@ interface TimerProps {
 }
 
 const Timer: React.FC<TimerProps> = ({ onFinish }) => {
-  const [timerTime, setTimerTime] = useState(60);
+  const chosenTimeStr = useAppSelector(
+    (state) => state.quizSettings.configuration?.time,
+  );
+
+  const chosenTimeSec =
+    chosenTimeStr && timeMap[chosenTimeStr] !== undefined
+      ? timeMap[chosenTimeStr]
+      : 120;
+
+  const [timerTime, setTimerTime] = useState(chosenTimeSec);
   const deferredTimerTime = useDeferredValue(timerTime);
   const timerOutput: string = formatTime(deferredTimerTime);
 

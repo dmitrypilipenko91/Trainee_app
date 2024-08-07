@@ -9,6 +9,9 @@ import { useNavigate } from 'react-router-dom';
 import { paths } from '../utils/paths';
 import { v4 as uuidv4 } from 'uuid';
 import { decode } from 'he';
+import { useAppDispatch, useAppSelector } from '../app/hooks';
+import { setEndTime, setQuestions } from '../slices/quizSettingsSlice';
+import { incrementCorrectAnswers } from '../slices/quizResultsSlice';
 
 const FEEDBACK = {
   CORRECT: "It's correct!",
@@ -25,7 +28,7 @@ interface ApiQuestion {
   category: string;
 }
 
-interface Question {
+export interface Question {
   id: string;
   content: string;
   answers: string[];
@@ -36,7 +39,6 @@ interface Question {
 }
 
 const MainQuizScreen: React.FC = () => {
-  const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [feedback, setFeedback] = useState<string>(FEEDBACK.default);
   const [isQuizCompleted, setIsQuizCompleted] = useState<boolean>(false);
@@ -48,17 +50,34 @@ const MainQuizScreen: React.FC = () => {
 
   const navigate = useNavigate();
 
+  const dispatch = useAppDispatch();
+
   const handleConfirmModal = () => {
     navigate(paths.home);
   };
 
   const finishQuiz = () => {
+    dispatch(setEndTime(Date.now()));
     setTimeout(() => navigate(paths.results), 1500);
   };
 
+  const configuration = useAppSelector(
+    (state) => state.quizSettings.configuration,
+  );
+
+  const questions = useAppSelector((state) => state.quizSettings.questions);
+
   const fetchQuestions = async () => {
+    if (!configuration) return;
+    const { numberOfQuestions, category, difficulty, type } = configuration;
+    const categoryParam = category !== 'any' ? `&category=${category}` : '';
+    const difficultyParam =
+      difficulty !== 'any' ? `&difficulty=${difficulty}` : '';
+    const typeParam = type !== 'any' ? `&type=${type}` : '';
+
+    const url = `https://opentdb.com/api.php?amount=${numberOfQuestions}${categoryParam}${difficultyParam}${typeParam}`;
     try {
-      const response = await fetch('https://opentdb.com/api.php?amount=15');
+      const response = await fetch(url);
       const data = await response.json();
 
       const formattedQuestions = data.results.map((q: ApiQuestion) => ({
@@ -73,8 +92,7 @@ const MainQuizScreen: React.FC = () => {
         difficulty: q.difficulty,
         category: q.category,
       }));
-
-      setQuestions(formattedQuestions);
+      dispatch(setQuestions(formattedQuestions));
     } catch (error) {
       console.error('Error fetching questions:', error);
     }
@@ -82,7 +100,7 @@ const MainQuizScreen: React.FC = () => {
 
   useEffect(() => {
     fetchQuestions();
-  }, []);
+  }, [configuration]);
 
   const question = useMemo(() => {
     if (questions.length > 0 && currentQuestionIndex < questions.length) {
@@ -102,11 +120,12 @@ const MainQuizScreen: React.FC = () => {
   }, [feedback]);
 
   const handleAnswerClick = (chosenAnswer: string) => {
-    setFeedback(() =>
-      chosenAnswer === question?.correctAnswer
-        ? FEEDBACK.CORRECT
-        : FEEDBACK.INCORRECT,
-    );
+    const isCorrect = chosenAnswer === question?.correctAnswer;
+    setFeedback(isCorrect ? FEEDBACK.CORRECT : FEEDBACK.INCORRECT);
+
+    if (isCorrect) {
+      dispatch(incrementCorrectAnswers());
+    }
   };
 
   const handleNextQuestion = () => {
@@ -156,12 +175,7 @@ const MainQuizScreen: React.FC = () => {
         )}
       </div>
       {feedback && <div className="feedback">{feedback}</div>}
-      <MyButton
-        buttonText="End quiz"
-        onClick={() => {
-          handleToggleOpenModal();
-        }}
-      />
+      <MyButton buttonText="End quiz" onClick={handleToggleOpenModal} />
       <Timer onFinish={finishQuiz} />
       <Modal
         isOpen={isModalOpen}
