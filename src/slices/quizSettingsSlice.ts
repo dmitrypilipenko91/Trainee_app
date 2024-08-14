@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Question } from '../pages/MainQuizScreen';
-import { v4 as uuidv4 } from 'uuid';
+import { nanoid } from 'nanoid';
 import { decode } from 'he';
 import { Option } from '../components/UI/select/MySelect';
 
@@ -74,7 +74,7 @@ export const fetchQuestions = createAsyncThunk(
     const data = await response.json();
 
     const formattedQuestions = data.results.map((q: ApiQuestion) => ({
-      id: uuidv4(),
+      id: nanoid(),
       content: decode(q.question),
       answers: [
         ...q.incorrect_answers.map((answer) => decode(answer)),

@@ -17,6 +17,7 @@ import {
   setSelectedTime,
   setSelectedType,
 } from '../slices/selectedValuesSlice';
+import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 
 const timeOptions = [
   { value: '1m', label: '1m' },
@@ -57,15 +58,15 @@ const QuizSettings = () => {
   }, [dispatch]);
 
   const handleStartButtonClick = () => {
-    const configuration = {
-      numberOfQuestions: numberOfQuestions || 5,
-      category: selectedCategory?.value || 'any',
-      difficulty: selectedDifficulty?.value || 'any',
-      type: selectedType?.value || 'any',
-      time: selectedTime?.value || '2m',
-    };
-
-    dispatch(setConfiguration(configuration));
+    dispatch(
+      setConfiguration({
+        numberOfQuestions: numberOfQuestions || 5,
+        category: selectedCategory?.value || 'any',
+        difficulty: selectedDifficulty?.value || 'any',
+        type: selectedType?.value || 'any',
+        time: selectedTime?.value || '2m',
+      }),
+    );
     dispatch(setStartTime(Date.now()));
     navigate(paths.main);
   };
@@ -74,21 +75,16 @@ const QuizSettings = () => {
     navigate(paths.stats);
   };
 
-  const handleCategoryChange = (value: Option | null) => {
-    dispatch(setSelectedCategory(value));
-  };
-
-  const handleDifficultyChange = (value: Option | null) => {
-    dispatch(setSelectedDifficulty(value));
-  };
-
-  const handleTypeChange = (value: Option | null) => {
-    dispatch(setSelectedType(value));
-  };
-
-  const handleTimeChange = (value: Option | null) => {
-    dispatch(setSelectedTime(value));
-  };
+  const handleChange =
+    (
+      callback: ActionCreatorWithPayload<{
+        value: string;
+        label: string;
+      } | null>,
+    ) =>
+    (value: Option | null) => {
+      dispatch(callback(value));
+    };
 
   return (
     <>
@@ -104,25 +100,25 @@ const QuizSettings = () => {
       <MySelect
         labelText="Category"
         options={categories}
-        onChange={handleCategoryChange}
+        onChange={handleChange(setSelectedCategory)}
         value={selectedCategory}
       />
       <MySelect
         labelText="Difficulty"
         options={difficultyOptions}
-        onChange={handleDifficultyChange}
+        onChange={handleChange(setSelectedDifficulty)}
         value={selectedDifficulty}
       />
       <MySelect
         labelText="Type"
         options={typeOptions}
-        onChange={handleTypeChange}
+        onChange={handleChange(setSelectedType)}
         value={selectedType}
       />
       <MySelect
         labelText="Time"
         options={timeOptions}
-        onChange={handleTimeChange}
+        onChange={handleChange(setSelectedTime)}
         value={selectedTime}
       />
       <MyButton buttonText="Start quiz" onClick={handleStartButtonClick} />
