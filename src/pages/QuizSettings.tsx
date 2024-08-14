@@ -1,11 +1,22 @@
 import { useNavigate } from 'react-router-dom';
 import MyButton from '../components/UI/button/MyButton';
 import Input from '../components/UI/input/Input';
-import MySelect from '../components/UI/select/MySelect';
+import MySelect, { Option } from '../components/UI/select/MySelect';
 import { paths } from '../utils/paths';
-import { useAppDispatch } from '../app/hooks';
-import { useEffect, useState } from 'react';
-import { setConfiguration, setStartTime } from '../slices/quizSettingsSlice';
+import { useAppDispatch, useAppSelector } from '../app/hooks';
+import { useEffect } from 'react';
+import {
+  fetchCategories,
+  setConfiguration,
+  setStartTime,
+} from '../slices/quizSettingsSlice';
+import {
+  setNumberOfQuestions,
+  setSelectedCategory,
+  setSelectedDifficulty,
+  setSelectedTime,
+  setSelectedType,
+} from '../slices/selectedValuesSlice';
 
 const timeOptions = [
   { value: '1m', label: '1m' },
@@ -13,63 +24,41 @@ const timeOptions = [
   { value: '5m', label: '5m' },
 ];
 
-const QuizSettings = () => {
-  const [numberOfQuestions, setNumberOfQuestions] = useState<number | null>(
-    null,
-  );
-  const [selectedCategory, setSelectedCategory] = useState<{
-    value: string;
-    label: string;
-  } | null>(null);
-  const [selectedDifficulty, setSelectedDifficulty] = useState<{
-    value: string;
-    label: string;
-  } | null>(null);
-  const [selectedType, setSelectedType] = useState<{
-    value: string;
-    label: string;
-  } | null>(null);
-  const [selectedTime, setSelectedTime] = useState<{
-    value: string;
-    label: string;
-  } | null>(null);
-  const [categories, setCategories] = useState<
-    { value: string; label: string }[]
-  >([]);
+const difficultyOptions = [
+  { value: 'any', label: 'Any Difficulty' },
+  { value: 'easy', label: 'Easy' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'hard', label: 'Hard' },
+];
 
+const typeOptions = [
+  { value: 'any', label: 'Any Type' },
+  { value: 'multiple', label: 'Multiple Choice' },
+  { value: 'boolean', label: 'True/False' },
+];
+
+const QuizSettings = () => {
   const navigate = useNavigate();
 
   const dispatch = useAppDispatch();
 
-  interface Category {
-    id: string;
-    name: string;
-  }
+  const {
+    numberOfQuestions,
+    selectedCategory,
+    selectedDifficulty,
+    selectedType,
+    selectedTime,
+  } = useAppSelector((state) => state.selectedValues);
 
-  const fetchCategories = async () => {
-    try {
-      const response = await fetch('https://opentdb.com/api_category.php');
-      const data = await response.json();
-      const categoryOptions = [
-        { value: 'any', label: 'Any Category' },
-        ...data.trivia_categories.map((category: Category) => ({
-          value: category.id,
-          label: category.name,
-        })),
-      ];
-      setCategories(categoryOptions);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  };
+  const categories = useAppSelector((state) => state.quizSettings.categories);
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    dispatch(fetchCategories());
+  }, [dispatch]);
 
   const handleStartButtonClick = () => {
     const configuration = {
-      numberOfQuestions: numberOfQuestions,
+      numberOfQuestions: numberOfQuestions || 5,
       category: selectedCategory?.value || 'any',
       difficulty: selectedDifficulty?.value || 'any',
       type: selectedType?.value || 'any',
@@ -85,6 +74,22 @@ const QuizSettings = () => {
     navigate(paths.stats);
   };
 
+  const handleCategoryChange = (value: Option | null) => {
+    dispatch(setSelectedCategory(value));
+  };
+
+  const handleDifficultyChange = (value: Option | null) => {
+    dispatch(setSelectedDifficulty(value));
+  };
+
+  const handleTypeChange = (value: Option | null) => {
+    dispatch(setSelectedType(value));
+  };
+
+  const handleTimeChange = (value: Option | null) => {
+    dispatch(setSelectedTime(value));
+  };
+
   return (
     <>
       <Input
@@ -92,39 +97,32 @@ const QuizSettings = () => {
         min={5}
         max={15}
         labelText="Number of questions (from 5 to 15)"
-        onChange={(e) => setNumberOfQuestions(parseInt(e.target.value))}
+        onChange={(e) =>
+          dispatch(setNumberOfQuestions(parseInt(e.target.value)))
+        }
       />
       <MySelect
         labelText="Category"
         options={categories}
-        onChange={setSelectedCategory}
+        onChange={handleCategoryChange}
         value={selectedCategory}
       />
       <MySelect
         labelText="Difficulty"
-        options={[
-          { value: 'any', label: 'Any Difficulty' },
-          { value: 'easy', label: 'Easy' },
-          { value: 'medium', label: 'Medium' },
-          { value: 'hard', label: 'Hard' },
-        ]}
-        onChange={setSelectedDifficulty}
+        options={difficultyOptions}
+        onChange={handleDifficultyChange}
         value={selectedDifficulty}
       />
       <MySelect
         labelText="Type"
-        options={[
-          { value: 'any', label: 'Any Type' },
-          { value: 'multiple', label: 'Multiple Choice' },
-          { value: 'boolean', label: 'True/False' },
-        ]}
-        onChange={setSelectedType}
+        options={typeOptions}
+        onChange={handleTypeChange}
         value={selectedType}
       />
       <MySelect
         labelText="Time"
         options={timeOptions}
-        onChange={setSelectedTime}
+        onChange={handleTimeChange}
         value={selectedTime}
       />
       <MyButton buttonText="Start quiz" onClick={handleStartButtonClick} />

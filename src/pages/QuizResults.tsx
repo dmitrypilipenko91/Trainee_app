@@ -5,6 +5,7 @@ import { paths } from '../utils/paths';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { clearQuizState, setStartTime } from '../slices/quizSettingsSlice';
 import { clearResults } from '../slices/quizResultsSlice';
+import { clearSelectedValues } from '../slices/selectedValuesSlice';
 
 const categoryMap: { [key: number]: string } = {
   9: 'General Knowledge',
@@ -50,22 +51,17 @@ const QuizResults: React.FC = () => {
   const handleAnotherQuizButton = () => {
     dispatch(clearQuizState());
     dispatch(clearResults());
+    dispatch(clearSelectedValues());
     navigate(paths.home);
   };
 
-  const questions = useAppSelector((state) => state.quizSettings.questions);
+  const { questions, configuration, startTime, endTime } = useAppSelector(
+    (state) => state.quizSettings,
+  );
 
   const correctAnswersCount = useAppSelector(
     (state) => state.quizResults.correctAnswers,
   );
-
-  const configuration = useAppSelector(
-    (state) => state.quizSettings.configuration,
-  );
-
-  const startTime = useAppSelector((state) => state.quizSettings.startTime);
-
-  const endTime = useAppSelector((state) => state.quizSettings.endTime);
 
   const timeTaken =
     startTime && endTime ? Math.floor((endTime - startTime) / 1000) : 0;

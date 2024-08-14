@@ -7,26 +7,16 @@ import '../App.css';
 import Modal from '../components/UI/modal/Modal';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '../utils/paths';
-import { v4 as uuidv4 } from 'uuid';
-import { decode } from 'he';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
-import { setEndTime, setQuestions } from '../slices/quizSettingsSlice';
+import { fetchQuestions, setEndTime } from '../slices/quizSettingsSlice';
 import { incrementCorrectAnswers } from '../slices/quizResultsSlice';
+import { clearSelectedValues } from '../slices/selectedValuesSlice';
 
 const FEEDBACK = {
   CORRECT: "It's correct!",
   INCORRECT: "It's incorrect!",
   default: '',
 };
-
-interface ApiQuestion {
-  question: string;
-  incorrect_answers: string[];
-  correct_answer: string;
-  type: string;
-  difficulty: string;
-  category: string;
-}
 
 export interface Question {
   id: string;
@@ -53,6 +43,7 @@ const MainQuizScreen: React.FC = () => {
   const dispatch = useAppDispatch();
 
   const handleConfirmModal = () => {
+    dispatch(clearSelectedValues());
     navigate(paths.home);
   };
 
@@ -61,46 +52,15 @@ const MainQuizScreen: React.FC = () => {
     setTimeout(() => navigate(paths.results), 1500);
   };
 
-  const configuration = useAppSelector(
-    (state) => state.quizSettings.configuration,
+  const { configuration, questions } = useAppSelector(
+    (state) => state.quizSettings,
   );
 
-  const questions = useAppSelector((state) => state.quizSettings.questions);
-
-  const fetchQuestions = async () => {
-    if (!configuration) return;
-    const { numberOfQuestions, category, difficulty, type } = configuration;
-    const categoryParam = category !== 'any' ? `&category=${category}` : '';
-    const difficultyParam =
-      difficulty !== 'any' ? `&difficulty=${difficulty}` : '';
-    const typeParam = type !== 'any' ? `&type=${type}` : '';
-
-    const url = `https://opentdb.com/api.php?amount=${numberOfQuestions}${categoryParam}${difficultyParam}${typeParam}`;
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-
-      const formattedQuestions = data.results.map((q: ApiQuestion) => ({
-        id: uuidv4(),
-        content: decode(q.question),
-        answers: [
-          ...q.incorrect_answers.map((answer) => decode(answer)),
-          decode(q.correct_answer),
-        ].sort(() => Math.random() - 0.5),
-        correctAnswer: decode(q.correct_answer),
-        type: q.type,
-        difficulty: q.difficulty,
-        category: q.category,
-      }));
-      dispatch(setQuestions(formattedQuestions));
-    } catch (error) {
-      console.error('Error fetching questions:', error);
-    }
-  };
-
   useEffect(() => {
-    fetchQuestions();
-  }, [configuration]);
+    if (configuration) {
+      dispatch(fetchQuestions(configuration));
+    }
+  }, [configuration, dispatch]);
 
   const question = useMemo(() => {
     if (questions.length > 0 && currentQuestionIndex < questions.length) {

@@ -1,7 +1,7 @@
 import Select from 'react-select';
 import classes from './MySelect.module.css';
 
-interface Option {
+export interface Option {
   value: string;
   label: string;
 }
