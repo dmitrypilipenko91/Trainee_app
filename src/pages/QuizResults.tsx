@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { clearQuizState, setStartTime } from '../slices/quizSettingsSlice';
 import { clearResults } from '../slices/quizResultsSlice';
 import { clearSelectedValues } from '../slices/selectedValuesSlice';
+import { motion } from 'framer-motion';
 
 const QuizResults: React.FC = () => {
   const navigate = useNavigate();
@@ -41,23 +42,30 @@ const QuizResults: React.FC = () => {
     startTime && endTime ? Math.floor((endTime - startTime) / 1000) : 0;
 
   return (
-    <div className="quiz_results_block">
-      <h3>Thank you for completing this quiz. Here are your results:</h3>
-      <p>
-        You answered {correctAnswersCount} out of {questions.length} questions
-        correctly
-      </p>
-      <p>
-        Category - {category}. Difficulty - {configuration?.difficulty}. Type -{' '}
-        {configuration?.type}. Time - {configuration?.time}
-      </p>
-      <p>Total time - {timeTaken} seconds.</p>
-      <MyButton buttonText="Restart" onClick={handleRestartButton} />
-      <MyButton
-        buttonText="Choose another quiz"
-        onClick={handleAnotherQuizButton}
-      />
-    </div>
+    <motion.div
+      initial={{ opacity: 0, y: -100 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 1 }}
+    >
+      <div className="quiz_results_block">
+        <h3>Thank you for completing this quiz. Here are your results:</h3>
+        <p>
+          You answered {correctAnswersCount} out of {questions.length} questions
+          correctly
+        </p>
+        <p>
+          Category - {category || 'any'}. Difficulty -{' '}
+          {configuration?.difficulty}. Type - {configuration?.type}. Time -{' '}
+          {configuration?.time}
+        </p>
+        <p>Total time - {timeTaken} seconds.</p>
+        <MyButton buttonText="Restart" onClick={handleRestartButton} />
+        <MyButton
+          buttonText="Choose another quiz"
+          onClick={handleAnotherQuizButton}
+        />
+      </div>
+    </motion.div>
   );
 };
 

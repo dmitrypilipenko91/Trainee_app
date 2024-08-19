@@ -18,6 +18,7 @@ import {
   setSelectedType,
 } from '../slices/selectedValuesSlice';
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
+import { motion } from 'framer-motion';
 
 const timeOptions = [
   { value: '1m', label: '1m' },
@@ -87,7 +88,11 @@ const QuizSettings = () => {
     };
 
   return (
-    <>
+    <motion.div
+      initial={{ opacity: 0, y: -100 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 1 }}
+    >
       <Input
         type="number"
         min={5}
@@ -123,7 +128,7 @@ const QuizSettings = () => {
       />
       <MyButton buttonText="Start quiz" onClick={handleStartButtonClick} />
       <MyButton buttonText="See my stats" onClick={handleSeeStatsButtonClick} />
-    </>
+    </motion.div>
   );
 };
 
