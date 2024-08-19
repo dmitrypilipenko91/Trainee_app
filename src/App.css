@@ -29,3 +29,10 @@
 .quiz_results_block p:last-of-type {
   margin-bottom: 50px;
 }
+.stats_block {
+  margin: 10px 0 10px 10px;
+  font-size: 18px;
+}
+.stats_block ul:last-of-type {
+  margin-bottom: 30px;
+}
