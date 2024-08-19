@@ -1,8 +1,23 @@
 import { useNavigate } from 'react-router-dom';
 import MyButton from '../components/UI/button/MyButton';
 import Input from '../components/UI/input/Input';
-import MySelect from '../components/UI/select/MySelect';
+import MySelect, { Option } from '../components/UI/select/MySelect';
 import { paths } from '../utils/paths';
+import { useAppDispatch, useAppSelector } from '../app/hooks';
+import { useEffect } from 'react';
+import {
+  fetchCategories,
+  setConfiguration,
+  setStartTime,
+} from '../slices/quizSettingsSlice';
+import {
+  setNumberOfQuestions,
+  setSelectedCategory,
+  setSelectedDifficulty,
+  setSelectedTime,
+  setSelectedType,
+} from '../slices/selectedValuesSlice';
+import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 
 const timeOptions = [
   { value: '1m', label: '1m' },
@@ -10,16 +25,66 @@ const timeOptions = [
   { value: '5m', label: '5m' },
 ];
 
+const difficultyOptions = [
+  { value: 'any', label: 'Any Difficulty' },
+  { value: 'easy', label: 'Easy' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'hard', label: 'Hard' },
+];
+
+const typeOptions = [
+  { value: 'any', label: 'Any Type' },
+  { value: 'multiple', label: 'Multiple Choice' },
+  { value: 'boolean', label: 'True/False' },
+];
+
 const QuizSettings = () => {
   const navigate = useNavigate();
 
+  const dispatch = useAppDispatch();
+
+  const {
+    numberOfQuestions,
+    selectedCategory,
+    selectedDifficulty,
+    selectedType,
+    selectedTime,
+  } = useAppSelector((state) => state.selectedValues);
+
+  const categories = useAppSelector((state) => state.quizSettings.categories);
+
+  useEffect(() => {
+    dispatch(fetchCategories());
+  }, [dispatch]);
+
   const handleStartButtonClick = () => {
+    dispatch(
+      setConfiguration({
+        numberOfQuestions: numberOfQuestions || 5,
+        category: selectedCategory?.value || 'any',
+        difficulty: selectedDifficulty?.value || 'any',
+        type: selectedType?.value || 'any',
+        time: selectedTime?.value || '2m',
+      }),
+    );
+    dispatch(setStartTime(Date.now()));
     navigate(paths.main);
   };
 
   const handleSeeStatsButtonClick = () => {
     navigate(paths.stats);
   };
+
+  const handleChange =
+    (
+      callback: ActionCreatorWithPayload<{
+        value: string;
+        label: string;
+      } | null>,
+    ) =>
+    (value: Option | null) => {
+      dispatch(callback(value));
+    };
 
   return (
     <>
@@ -28,11 +93,34 @@ const QuizSettings = () => {
         min={5}
         max={15}
         labelText="Number of questions (from 5 to 15)"
+        onChange={(e) =>
+          dispatch(setNumberOfQuestions(parseInt(e.target.value)))
+        }
       />
-      <MySelect labelText="Category" options={[]} />
-      <MySelect labelText="Difficulty" options={[]} />
-      <MySelect labelText="Type" options={[]} />
-      <MySelect options={timeOptions} labelText="Time" />
+      <MySelect
+        labelText="Category"
+        options={categories}
+        onChange={handleChange(setSelectedCategory)}
+        value={selectedCategory}
+      />
+      <MySelect
+        labelText="Difficulty"
+        options={difficultyOptions}
+        onChange={handleChange(setSelectedDifficulty)}
+        value={selectedDifficulty}
+      />
+      <MySelect
+        labelText="Type"
+        options={typeOptions}
+        onChange={handleChange(setSelectedType)}
+        value={selectedType}
+      />
+      <MySelect
+        labelText="Time"
+        options={timeOptions}
+        onChange={handleChange(setSelectedTime)}
+        value={selectedTime}
+      />
       <MyButton buttonText="Start quiz" onClick={handleStartButtonClick} />
       <MyButton buttonText="See my stats" onClick={handleSeeStatsButtonClick} />
     </>
