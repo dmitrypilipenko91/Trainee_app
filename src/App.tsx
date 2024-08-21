@@ -11,7 +11,8 @@ import MainQuizScreen from './pages/MainQuizScreen';
 import Statistics from './pages/Statistics';
 import { paths } from './utils/paths';
 import { Provider } from 'react-redux';
-import store from './app/store';
+import store, { persistor } from './app/store';
+import { PersistGate } from 'redux-persist/integration/react';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -27,7 +28,9 @@ const router = createBrowserRouter(
 function App() {
   return (
     <Provider store={store}>
-      <RouterProvider router={router} />
+      <PersistGate loading={null} persistor={persistor}>
+        <RouterProvider router={router} />
+      </PersistGate>
     </Provider>
   );
 }

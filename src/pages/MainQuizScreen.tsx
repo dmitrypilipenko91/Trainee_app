@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { fetchQuestions, setEndTime } from '../slices/quizSettingsSlice';
 import { incrementCorrectAnswers } from '../slices/quizResultsSlice';
 import { clearSelectedValues } from '../slices/selectedValuesSlice';
+import { updateStats } from '../slices/statsSlice';
 
 const FEEDBACK = {
   CORRECT: "It's correct!",
@@ -47,14 +48,29 @@ const MainQuizScreen: React.FC = () => {
     navigate(paths.home);
   };
 
-  const finishQuiz = () => {
-    dispatch(setEndTime(Date.now()));
-    setTimeout(() => navigate(paths.results), 1500);
-  };
-
   const { configuration, questions } = useAppSelector(
     (state) => state.quizSettings,
   );
+
+  const statsConfig = useAppSelector((state) => state.selectedValues);
+
+  const correctAnswers = useAppSelector(
+    (state) => state.quizResults.correctAnswers,
+  );
+
+  const finishQuiz = () => {
+    dispatch(
+      updateStats({
+        numberOfQuestions: statsConfig.numberOfQuestions || 5,
+        correctAnswers,
+        category: statsConfig.selectedCategory?.label || 'Any Category',
+        difficulty: statsConfig.selectedDifficulty?.label || 'Any Difficulty',
+        type: statsConfig.selectedType?.label || 'Any Type',
+      }),
+    );
+    dispatch(setEndTime(Date.now()));
+    setTimeout(() => navigate(paths.results), 1500);
+  };
 
   useEffect(() => {
     if (configuration) {
