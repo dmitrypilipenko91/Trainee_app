@@ -98,9 +98,14 @@ const QuizSettings = () => {
         min={5}
         max={15}
         labelText="Number of questions (from 5 to 15)"
-        onChange={(e) =>
-          dispatch(setNumberOfQuestions(parseInt(e.target.value)))
-        }
+        htmlFor="input"
+        id="input"
+        onChange={(e) => {
+          const value = parseInt(e.target.value);
+          if (value > 15 || value < 5) {
+            dispatch(setNumberOfQuestions(5));
+          } else dispatch(setNumberOfQuestions(value));
+        }}
       />
       <MySelect
         labelText="Category"

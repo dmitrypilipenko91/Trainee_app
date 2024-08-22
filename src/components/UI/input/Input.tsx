@@ -7,6 +7,8 @@ interface InputProps {
   labelText: string;
   value?: string | number;
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  htmlFor?: string;
+  id?: string;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -14,12 +16,15 @@ const Input: React.FC<InputProps> = ({
   labelText,
   value,
   onChange,
+  htmlFor,
+  id,
   ...props
 }) => {
   return (
     <div className={classes.inputGroup}>
-      <label>{labelText}</label>
+      <label htmlFor={htmlFor}>{labelText}</label>
       <input
+        id={id}
         type={type}
         className={classes.input}
         value={value}
